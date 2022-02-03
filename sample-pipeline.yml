@@ -1,0 +1,31 @@
+
+stages:
+  - stage: Test
+    jobs:
+      - job: Unit tests
+      - job: Integration tests
+
+  - stage: Build
+    dependsOn: Test
+    jobs:
+      - job: Build app
+      - job: Scan
+        dependsOn: Build app
+      - job: Build database
+        container: ssdt
+
+  - stage: DeployToDev
+    dependsOn: Build
+    jobs:
+      - job: Deploy app
+      - job: Deploy database
+      - job: Smoke test
+        dependsOn: Deploy database
+
+  - stage: DeployToProd
+    dependsOn: DeployToDev
+    jobs:
+      - job: Deploy app
+      - job: Deploy database
+      - job: Smoke test
+        dependsOn: Deploy database
