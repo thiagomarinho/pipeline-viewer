@@ -38,7 +38,8 @@ post '/read-pipeline' do
 
             stage.jobs.map do |job|
                 previous_x = current_x
-                current_x += (75 + (5 * job.name.size))
+                increment_x_with = job.name ? (5 * job.name.size) : 70
+                current_x += (75 + increment_x_with)
 
                 {
                     data: job.data,
