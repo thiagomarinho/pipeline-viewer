@@ -1,6 +1,7 @@
 require 'yaml'
 require 'json'
 require 'sinatra'
+require_relative 'model_parser'
 
 get '/' do
     erb :index
@@ -15,56 +16,49 @@ def id_for(item, parent=nil)
 end
 
 post '/read-pipeline' do
-    pipeline = YAML.load(yaml)
+    pipeline = to_model(params['pipeline'])
 
     current_x = 0
     current_y = 0
-    @stages = pipeline['stages']
+    @stages = pipeline
+        .stages
         .map { |stage| {
-            data: {
-                id: id_for(stage),
-                name: stage['stage']
-            },
+            data: stage.data,
             position: {
                 x: (current_x += 75),
                 y: (current_y += 100)
             }
         }}
 
-    @jobs = pipeline['stages']
-        .select { |stage| stage['jobs'] }
+    @jobs = pipeline
+        .stages
+        .select { |stage| stage.has_jobs? }
         .flat_map do |stage|
             current_x = 0
 
-            stage['jobs'].map do |job|
+            stage.jobs.map do |job|
                 previous_x = current_x
-                current_x += (75 + (5 * job['job'].size))
+                current_x += (75 + (5 * job.name.size))
 
                 {
-                    data: {
-                        id: id_for(job, stage),
-                        name: job['job'],
-                        parent: id_for(stage)
-                    },
+                    data: job.data,
                     position: {
-                        x: @stages.find { |s| s[:data][:id] == id_for(stage)}[:position][:x] + previous_x,
-                        y: @stages.find { |s| s[:data][:id] == id_for(stage)}[:position][:y]
+                        x: @stages.find { |s| s[:data][:id] == stage.id }[:position][:x] + previous_x,
+                        y: @stages.find { |s| s[:data][:id] == stage.id }[:position][:y]
                     }
                 }
             end
         end
 
-    @stages_edges = pipeline['stages']
-        .select { |stage| stage['dependsOn'] }
-        .map { |stage| { data: { id: "#{stage['dependsOn']}_#{stage['stage']}", source: "stage_#{stage['dependsOn']}", target: id_for(stage) } } }
+    @stages_edges = pipeline
+        .stages
+        .select { |stage| stage.has_dependency? }
+        .map { |stage| { data: stage.edge_data } }
 
-    @jobs_edges = []
-
-    # @jobs_edges = pipeline['stages']
-    #     .flat_map { |stage| stage['jobs'] }
-    #     .reject { |e| e.to_s.empty? }
-    #     .select { |job| job['dependsOn'] }
-    #     .map { |job| { data: { id: "#{job['dependsOn']}_#{job['job']}", source: job['dependsOn'], target: id_for(job) } } }
+    @jobs_edges = pipeline
+        .jobs
+        .select { |job| job.has_dependency? }
+        .map { |job| { data: job.edge_data } }
 
     erb :read_pipeline
 end

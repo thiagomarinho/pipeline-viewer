@@ -9,7 +9,9 @@ stages:
     dependsOn: Test
     jobs:
       - job: Build app
-      - job: Scan
+      - job: Security Scan
+        dependsOn: Build app
+      - job: Quality Scan
         dependsOn: Build app
       - job: Build database
         container: ssdt
