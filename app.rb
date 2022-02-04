@@ -54,12 +54,14 @@ post '/read-pipeline' do
     @stages_edges = pipeline
         .stages
         .select { |stage| stage.has_dependency? }
-        .map { |stage| { data: stage.edge_data } }
+        .flat_map { |stage| stage.edge_data }
 
     @jobs_edges = pipeline
         .jobs
         .select { |job| job.has_dependency? }
-        .map { |job| { data: job.edge_data } }
+        .flat_map { |job| job.edge_data }
+
+    
 
     erb :read_pipeline
 end

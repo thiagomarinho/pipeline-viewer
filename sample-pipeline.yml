@@ -6,7 +6,8 @@ stages:
       - job: Integration tests
 
   - stage: Build
-    dependsOn: Test
+    dependsOn:
+      - Test
     jobs:
       - job: Build app
       - job: Security Scan
