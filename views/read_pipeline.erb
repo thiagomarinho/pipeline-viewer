@@ -1,59 +1,63 @@
 <!DOCTYPE html>
-<!-- This code is for demonstration purposes only.  You should not hotlink to Github, Rawgit, or files from the Cytoscape.js documentation in your production apps. -->
 <html>
+
 <head>
-<link href="style.css" rel="stylesheet" />
-<meta charset=utf-8 />
-<meta name="viewport" content="user-scalable=no, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, minimal-ui">
-<title>Compound nodes</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.20.0/cytoscape.min.js"></script>
+  <link href="style.css" rel="stylesheet" />
+  <meta charset=utf-8 />
+  <meta name="viewport" content="user-scalable=no, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, minimal-ui">
+  <title>Pipeline viewer</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.20.0/cytoscape.min.js"></script>
 </head>
+
 <body>
-<div id="cy"></div>
-<!-- Load application code at the end to ensure DOM is loaded -->
-<script>
-var cy = window.cy = cytoscape({
-  container: document.getElementById('cy'),
+  <div id="cy"></div>
 
-  boxSelectionEnabled: false,
+  <!-- Load application code at the end to ensure DOM is loaded -->
 
-  style: [
-    {
-      selector: 'node',
-      css: {
-        'content': 'data(name)',
-        'text-valign': 'center',
-        'text-halign': 'center'
+  <script>
+    var cy = window.cy = cytoscape({
+      container: document.getElementById('cy'),
+    
+      boxSelectionEnabled: false,
+    
+      style: [
+        {
+          selector: 'node',
+          css: {
+            'content': 'data(name)',
+            'text-valign': 'center',
+            'text-halign': 'center'
+          }
+        },
+        {
+          selector: ':parent',
+          css: {
+            'text-valign': 'top',
+            'text-halign': 'center',
+          }
+        },
+        {
+          selector: 'edge',
+          css: {
+            'curve-style': 'bezier',
+            'target-arrow-shape': 'triangle'
+          }
+        }
+      ],
+    
+      elements: {
+        nodes: <%= JSON.generate(@stages + @jobs) %>,
+        edges: <%= JSON.generate(@stages_edges + @jobs_edges) %>,
+      },
+    
+      layout: {
+        name: 'preset',
+        padding: 5
       }
-    },
-    {
-      selector: ':parent',
-      css: {
-        'text-valign': 'top',
-        'text-halign': 'center',
-      }
-    },
-    {
-      selector: 'edge',
-      css: {
-        'curve-style': 'bezier',
-        'target-arrow-shape': 'triangle'
-      }
-    }
-  ],
+    });
+  </script>
 
-  elements: {
-    nodes: <%= JSON.generate(@stages + @jobs) %>,
-    edges: <%= JSON.generate(@stages_edges + @jobs_edges) %>,
-  },
-
-  layout: {
-    name: 'preset',
-    padding: 5
-  }
-});
-</script>
-
-<a href="/">Try again</a>
+  <a href="/">Try again</a>
 </body>
+
 </html>

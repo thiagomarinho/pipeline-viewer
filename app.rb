@@ -7,12 +7,8 @@ get '/' do
     erb :index
 end
 
-def id_for(item, parent=nil)
-    return "stage_#{item['stage']}" if item['stage']
-
-    return "job_#{parent['stage']}_#{item['job']}" if item['job']
-
-    raise "Item not identified: #{item.inspect}"
+get '/how-to-get-compiled-pipeline' do
+    erb :how_to_get_compiled_pipeline
 end
 
 post '/read-pipeline' do
