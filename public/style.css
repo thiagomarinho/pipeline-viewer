@@ -14,7 +14,6 @@ body {
   top: 40px;
 }
 
-/*
 body.dark {
   --bg-color: #000;
   --bg-secondary-color: #131316;
@@ -22,7 +21,6 @@ body.dark {
   --color-grey: #ccc;
   --color-darkGrey: #777;
 }
-*/
 
 img.find-compiled-pipeline-image {
   width: 30%;
