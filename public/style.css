@@ -23,3 +23,12 @@ body.dark {
   --color-darkGrey: #777;
 }
 */
+
+img.find-compiled-pipeline-image {
+  width: 30%;
+  margin: 0 auto;
+}
+
+p.find-compiled-pipeline-description {
+  width: 40%;
+}
