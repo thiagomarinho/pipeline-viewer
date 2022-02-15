@@ -6,21 +6,18 @@ class String
 end
 
 class Pipeline
+  attr_reader :stages, :jobs
+
   def initialize(yaml)
     @yaml = yaml
     @stages = @yaml['stages'].map { |stage| Stage.new(stage, self) }
+    @jobs = @stages.flat_map { |stage| stage.jobs }.reject { |job| job.to_s.empty? }
   end
 
-  attr_reader :stages
+  def stage(internal_id)
+    stage = @stages.find { |stage| stage.internal_id == internal_id }
 
-  def jobs
-    stages.flat_map { |stage| stage.jobs }.reject { |job| job.to_s.empty? }
-  end
-
-  def stage(name)
-    stage = @stages.find { |stage| stage.name == name }
-
-    raise "Stage not found: #{name}" unless stage
+    raise "Stage not found: #{internal_id}" unless stage
 
     stage
   end
@@ -35,25 +32,32 @@ class JobFactory
   end
 end
 
-class Stage
-  def self.id(instance)
-    return "stage_#{instance.name}".parameterize
-  end
-
-  attr_reader :jobs, :name, :parent
+class Base
+  attr_reader :internal_id, :id, :display_name, :parent, :children
 
   def initialize(yaml, parent)
     @yaml = yaml
-    @name = @yaml['stage']
+    @display_name = @yaml['displayName']
     @parent = parent
-
-    if @yaml['jobs']
-      @jobs = @yaml['jobs'].map { |job| JobFactory.create_job(job, self) }
-    end
   end
 
-  def id
-    Stage.id(self)
+  def name
+    @display_name || @internal_id
+  end
+end
+
+class Stage < Base
+  attr_reader :jobs
+
+  def initialize(yaml, parent)
+    super(yaml, parent)
+
+    @internal_id = yaml['stage']
+    @id = "stage_#{@internal_id}".parameterize
+
+    if yaml['jobs']
+      @jobs = yaml['jobs'].map { |job| JobFactory.create_job(job, self) }
+    end
   end
 
   def previous_stage
@@ -80,10 +84,10 @@ class Stage
     my_index == 0
   end
 
-  def job(name)
-    job = @jobs.find { |job| job.name == name }
+  def job(internal_id)
+    job = @jobs.find { |job| job.internal_id == internal_id }
 
-    raise "Job not found: #{name}" unless job
+    raise "Job not found: #{internal_id}" unless job
 
     job
   end
@@ -142,19 +146,12 @@ class Stage
   end
 end
 
-class Job
-  def self.id(instance)
-    return "job_#{instance.parent.id}_#{instance.name}".parameterize
-  end
+class Job < Base
+  def initialize(yaml, parent, id_key='job')
+    super(yaml, parent)
 
-  def initialize(yaml, parent)
-    @yaml = yaml
-    @name = @yaml['job']
-    @parent = parent
-  end
-
-  def id
-    Job.id(self)
+    @internal_id = yaml[id_key]
+    @id = "job_#{parent.id}_#{@internal_id}".parameterize
   end
 
   def data
@@ -189,15 +186,11 @@ class Job
       }
     } }
   end
-
-  attr_reader :name, :parent
 end
 
 class DeploymentJob < Job
   def initialize(yaml, parent)
-    @yaml = yaml
-    @name = @yaml['deployment']
-    @parent = parent
+    super(yaml, parent, 'deployment')
   end
 end
 

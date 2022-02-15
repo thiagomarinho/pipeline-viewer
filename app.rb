@@ -1,7 +1,7 @@
 require 'yaml'
 require 'json'
 require 'sinatra'
-require_relative 'model_parser'
+require_relative 'model'
 
 get '/' do
     erb :index
@@ -16,6 +16,7 @@ post '/read-pipeline' do
 
     current_x = 0
     current_y = 0
+
     @stages = pipeline
         .stages
         .map { |stage| {
