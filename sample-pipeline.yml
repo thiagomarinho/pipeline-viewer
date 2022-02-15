@@ -1,3 +1,4 @@
+# this sample can be invalid
 
 stages:
   - stage: Test
@@ -6,10 +7,12 @@ stages:
       - job: Integration tests
 
   - stage: Build
+    pool: vmss
     dependsOn:
       - Test
     jobs:
       - job: Build app
+        container: build-image
       - job: Security Scan
         dependsOn: Build app
       - job: Quality Scan

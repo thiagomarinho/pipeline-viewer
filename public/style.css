@@ -8,10 +8,25 @@ body {
 
 #cy {
   height: 100%;
-  width: 100%;
+  width: 70%;
   position: absolute;
   left: 0;
-  top: 40px;
+}
+
+#inspector {
+  height: 100%;
+  width: 30%;
+  position: absolute;
+  right: 0;
+}
+
+h1#current_name {
+  margin-bottom: 5px;
+}
+
+h2#current_type {
+  color: #777;
+  margin-top: 5px;
 }
 
 body.dark {

@@ -54,6 +54,7 @@ class Stage < Base
 
     @internal_id = yaml['stage']
     @id = "stage_#{@internal_id}".parameterize
+    @pool = yaml['pool']
 
     if yaml['jobs']
       @jobs = yaml['jobs'].map { |job| JobFactory.create_job(job, self) }
@@ -94,9 +95,21 @@ class Stage < Base
 
   def data
     {
+      type: 'Stage',
       id: id,
-      name: name
+      internal_id: internal_id,
+      name: name,
+      children_type: 'Jobs',
+      children: jobs.map { |job| job.name },
+      attributes: attributes
     }
+  end
+
+  def attributes
+    attributes = []
+    attributes << { name: :pool, value: @pool } if @pool
+
+    attributes.compact
   end
 
   def depends_on
@@ -152,14 +165,29 @@ class Job < Base
 
     @internal_id = yaml[id_key]
     @id = "job_#{parent.id}_#{@internal_id}".parameterize
+    @pool = yaml['pool']
+    @container = yaml['container']
   end
 
   def data
     {
+      type: 'Job',
       id: id,
+      internal_id: internal_id,
       name: name,
-      parent: parent.id
+      parent: parent.id,
+      children_type: 'Steps',
+      children: [],
+      attributes: attributes
     }
+  end
+
+  def attributes
+    attributes = []
+    attributes << { name: :pool, value: @pool } if @pool
+    attributes << { name: :container, value: @container } if @container
+
+    attributes.compact
   end
 
   def has_dependency?

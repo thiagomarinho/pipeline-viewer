@@ -3,6 +3,7 @@
 
 <head>
   <link href="style.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://unpkg.com/chota">
   <meta charset=utf-8 />
   <meta name="viewport" content="user-scalable=no, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, minimal-ui">
   <title>Pipeline viewer</title>
@@ -20,6 +21,16 @@
 
 <body>
   <div id="cy"></div>
+  <div id="inspector">
+    <div id="toolbar">
+      <a class="button" href="/">Preview another pipeline</a>
+    </div>
+    <h1 id="current_name">Select something</h1>
+    <h2 id="current_type"></h2>
+    <ul id="attributes"></ul>
+    <h2 id="children_type"></h2>
+    <ul id="children"></ul>
+  </div>
 
   <!-- Load application code at the end to ensure DOM is loaded -->
 
@@ -64,9 +75,17 @@
         padding: 5
       }
     });
-  </script>
 
-  <a href="/">Try again</a>
+    cy.on('tap', 'node', function(evt){
+      var node = evt.target;
+
+      document.getElementById('current_name').innerHTML = node.data().name;
+      document.getElementById('current_type').innerHTML = node.data().type;
+      document.getElementById('children_type').innerHTML = node.data().children_type;
+      document.getElementById('attributes').innerHTML = node.data().attributes.map((attribute) => `<li>${attribute.name}: ${attribute.value}</li>`);
+      document.getElementById('children').innerHTML = node.data().children.map((child) => `<li>${child}</li>`);
+    });
+  </script>
 </body>
 
 </html>
