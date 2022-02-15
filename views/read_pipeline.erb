@@ -7,6 +7,7 @@
   <meta charset=utf-8 />
   <meta name="viewport" content="user-scalable=no, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, minimal-ui">
   <title>Pipeline viewer</title>
+  <script src="FileSaver.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.20.0/cytoscape.min.js"></script>
   <!-- Global site tag (gtag.js) - Google Analytics -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-SYML2PW7PX"></script>
@@ -24,8 +25,9 @@
   <div id="inspector">
     <div id="toolbar">
       <a class="button" href="/">Preview another pipeline</a>
+      <a class="button bt-download-image" href="javascript:;">Download image</a>
     </div>
-    <h1 id="current_name">Select something</h1>
+    <h1 id="current_name">Click on something to see details</h1>
     <h2 id="current_type"></h2>
     <ul id="attributes"></ul>
     <h2 id="children_type"></h2>
@@ -85,6 +87,13 @@
       document.getElementById('attributes').innerHTML = node.data().attributes.map((attribute) => `<li>${attribute.name}: ${attribute.value}</li>`);
       document.getElementById('children').innerHTML = node.data().children.map((child) => `<li>${child}</li>`);
     });
+
+
+    function downloadCanvas() {
+      saveAs(cy.png({ bg: 'white'}), 'pipeline.png');
+    };
+
+    document.querySelector('#toolbar .bt-download-image').addEventListener('click', downloadCanvas, false);
   </script>
 </body>
 
