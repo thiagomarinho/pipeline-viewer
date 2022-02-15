@@ -11,7 +11,7 @@ get '/how-to-get-compiled-pipeline' do
     erb :how_to_get_compiled_pipeline
 end
 
-post '/read-pipeline' do
+post '/preview-pipeline' do
     pipeline = to_model(params['pipeline'])
 
     current_x = 0
