@@ -29,5 +29,8 @@ jobs:
         env:
           HEROKU_APP_NAME: ${{ secrets.HEROKU_APP_NAME }}
 
+      - name: Pull heroku branch with rebase
+        run: git pull heroku main --rebase
+
       - name: Push to Heroku
         run: git push heroku main
