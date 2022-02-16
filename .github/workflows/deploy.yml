@@ -33,4 +33,4 @@ jobs:
         run: git remote -v
 
       - name: Push to Heroku
-        run: git push heroku main
+        run: git push heroku main -f
