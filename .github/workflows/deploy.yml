@@ -30,7 +30,7 @@ jobs:
           HEROKU_APP_NAME: ${{ secrets.HEROKU_APP_NAME }}
 
       - name: List remotes
-        run: git remote -v
+        run: git pull heroku main --rebase
 
       - name: Push to Heroku
-        run: git push heroku main -f
+        run: git push heroku main
