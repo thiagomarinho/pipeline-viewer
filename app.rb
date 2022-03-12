@@ -2,6 +2,7 @@ require 'yaml'
 require 'json'
 require 'sinatra'
 require_relative 'model'
+require_relative 'drawer'
 
 get '/' do
     erb :index
@@ -17,36 +18,10 @@ post '/preview-pipeline' do
     current_x = 0
     current_y = 0
 
-    @stages = pipeline
-        .stages
-        .map { |stage| {
-            data: stage.data,
-            position: {
-                x: (current_x += 75),
-                y: (current_y += 100)
-            }
-        }}
+    @drawer = Drawer.new(pipeline)
 
-    @jobs = pipeline
-        .stages
-        .select { |stage| stage.has_jobs? }
-        .flat_map do |stage|
-            current_x = 0
-
-            stage.jobs.map do |job|
-                previous_x = current_x
-                increment_x_with = job.name ? (5 * job.name.size) : 70
-                current_x += (75 + increment_x_with)
-
-                {
-                    data: job.data,
-                    position: {
-                        x: @stages.find { |s| s[:data][:id] == stage.id }[:position][:x] + previous_x,
-                        y: @stages.find { |s| s[:data][:id] == stage.id }[:position][:y]
-                    }
-                }
-            end
-        end
+    @stages = @drawer.stages
+    @jobs = @drawer.jobs
 
     @stages_edges = pipeline
         .stages

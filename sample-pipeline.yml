@@ -6,9 +6,15 @@ stages:
       - job: Unit tests
       - job: Integration tests
 
+  - stage: MoreTests
+    dependsOn: []
+    jobs:
+      - job: Acceptance tests
+
   - stage: Build
     pool: vmss
     dependsOn:
+      - MoreTests
       - Test
     jobs:
       - job: Build app

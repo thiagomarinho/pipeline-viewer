@@ -73,6 +73,30 @@ class Stage < Base
     @parent.stages[my_index + 1]
   end
 
+  def siblings
+    stages_from_parent = @parent.stages.dup
+
+    stages_from_parent.delete_at(my_index)
+
+    stages_from_parent
+  end
+
+  def siblings_and_me
+    @parent.stages
+  end
+
+  def dependency_level
+    return 0 if depends_on.empty?
+    return 1 + depends_on.map { |dependency| dependency.dependency_level }.max
+  end
+
+  def my_index_at_my_level
+    my_dependency_level = dependency_level
+    my_id = id
+
+    siblings_and_me.select { |sibling| sibling.dependency_level == my_dependency_level }.index { |item| item.id == my_id }
+  end
+
   def my_index
     @my_index ||= @parent.stages.find_index { |stage| stage.name == name }
   end
