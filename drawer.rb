@@ -19,14 +19,14 @@ class Drawer
   end
 
   def to_drawing_stage(stage)
-    distance_between_stages = 200
+    distance_between_blocks = 150
     x_multiplier = 300 # this should be the "stage size", based on the amount of jobs side by side
 
     {
       data: stage.data,
       position: {
-          x: stage.my_index_at_my_level * x_multiplier, # and this is wrong
-          y: stage.dependency_level * distance_between_stages
+          x: stage.my_index_at_my_level * x_multiplier, # and this is wrong...?
+          y: stage.dependency_level * distance_between_blocks # + previous_stage.height?
       }
     }
   end
@@ -35,28 +35,23 @@ class Drawer
     @pipeline
       .stages
       .select { |stage| stage.has_jobs? }
-      .flat_map do |stage|
-          current_x = 0
-
-          stage.jobs.map do |job|
-              previous_x = current_x
-              increment_x_with = job.name ? (5 * job.name.size) : 70
-              current_x += (75 + increment_x_with)
-
-              {
-                  data: job.data,
-                  position: {
-                      x: @stages.find { |s| s[:data][:id] == stage.id }[:position][:x] + previous_x,
-                      y: @stages.find { |s| s[:data][:id] == stage.id }[:position][:y]
-                  }
-              }
-          end
-      end
+      .flat_map { |stage| stage.jobs.map { |job| to_drawing_job(stage, job) } }
   end
-end
 
-class StageToDraw
-end
+  def to_drawing_job(stage, job)
+    y_distance_between_blocks = 50
+    x_multiplier = 100
+    x_my_position = x_multiplier * job.my_index_at_my_level
 
-class JobToDraw
+    x_position_from_parent =  @stages.find { |s| s[:data][:id] == stage.id }[:position][:x]
+    y_position_from_parent = @stages.find { |s| s[:data][:id] == stage.id }[:position][:y]
+
+    {
+        data: job.data,
+        position: {
+            x: x_position_from_parent + x_my_position + job.item_size_for_drawing_purposes,
+            y: (job.dependency_level * y_distance_between_blocks) + y_position_from_parent
+        }
+    }
+  end
 end
