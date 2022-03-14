@@ -8,7 +8,22 @@
   <meta name="viewport" content="user-scalable=no, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, minimal-ui">
   <title>Pipeline viewer</title>
   <script src="FileSaver.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.20.0/cytoscape.min.js"></script>
+  <script src="https://unpkg.com/cytoscape/dist/cytoscape.min.js"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/elkjs@0.7.0/lib/elk.bundled.js"></script>
+  <script src="cytoscape-elk.js"></script>
+
+  <script src="https://unpkg.com/dagre@0.7.4/dist/dagre.js"></script>
+  <script src="cytoscape-dagre.js"></script>
+
+  <script src="https://unpkg.com/webcola/WebCola/cola.min.js"></script>
+  <script src="cytoscape-cola.js"></script>
+
+  <script src="https://unpkg.com/klayjs@0.4.1/klay.js"></script>
+  <script src="cytoscape-klay.js"></script>
+
+  <script src="cytoscape-even-parent.js"></script>
+
   <!-- Global site tag (gtag.js) - Google Analytics -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-SYML2PW7PX"></script>
   <script>
@@ -71,10 +86,36 @@
         nodes: <%= JSON.generate(@stages + @jobs) %>,
         edges: <%= JSON.generate(@stages_edges + @jobs_edges) %>,
       },
-    
       layout: {
-        name: 'preset',
-        padding: 5
+        nodeDimensionsIncludeLabels: true,
+        animate: false,
+
+        // name: 'evenParent',
+
+        name: 'elk',
+        elk: {
+          algorithm: 'mrtree',
+        },
+
+        /*
+        name: 'klay',
+        klay: {
+        direction: 'DOWN',
+        spacing: 20,
+        thoroughness: 10
+        }
+        */
+
+        /*
+        name: 'cola',
+        avoidOverlap: true,
+        */
+
+        /*
+        name: 'dagre',
+        rankDir: 'LR',
+        align: 'UL',
+        */
       }
     });
 
