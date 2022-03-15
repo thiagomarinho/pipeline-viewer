@@ -75,11 +75,8 @@
       <div class="col"><a href="/">Click here to go to the home page</a></div>
   </div>
 
-  <script>
-    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-      document.body.classList.add('dark');
-    }
-  </script>
+  <a href="javascript:void(0)" id="theme-switch" onclick="switchMode(this)">☀️</a>
+  <script src="dark-mode.js"></script>
 </body>
 
 </html>
