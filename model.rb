@@ -133,11 +133,11 @@ class Stage < Base
   end
 
   def attributes
-    @yaml.reject { |key| ['jobs', 'stage'].include?(key) }.map { |key, value| { name: key, value: value } }.compact
+    @yaml.reject { |key| ['jobs', 'stage', 'displayName'].include?(key) }.map { |key, value| { name: key, value: value } }.compact
   end
 
   def attributes_as_yaml
-    @yaml.reject { |key| ['jobs', 'stage'].include?(key) }.compact.to_yaml.sub("--- {}\n", '').sub("---\n", '')
+    @yaml.reject { |key| ['jobs', 'stage', 'displayName'].include?(key) }.compact.to_yaml.sub("--- {}\n", '').sub("---\n", '')
   end
 
   def depends_on
@@ -224,11 +224,11 @@ class Job < Base
   end
 
   def attributes
-    @yaml.reject { |key| ['steps', 'job'].include?(key) }.map { |key, value| { name: key, value: value } }.compact
+    @yaml.reject { |key| ['steps', 'job', 'strategy', 'deployment', 'displayName'].include?(key) }.map { |key, value| { name: key, value: value } }.compact
   end
 
   def attributes_as_yaml
-    @yaml.reject { |key| ['steps', 'job', 'strategy', 'deployment'].include?(key) }.compact.to_yaml.sub("--- {}\n", '').sub("---\n", '')
+    @yaml.reject { |key| ['steps', 'job', 'strategy', 'deployment', 'displayName'].include?(key) }.compact.to_yaml.sub("--- {}\n", '').sub("---\n", '')
   end
 
   def has_dependency?
