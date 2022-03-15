@@ -33,7 +33,7 @@
     </div>
     <h1 id="current_name">Click on something to see details</h1>
     <h2 id="current_type"></h2>
-    <ul id="attributes"></ul>
+    <div id="attributes"></div>
     <h2 id="children_type"></h2>
     <ul id="children"></ul>
   </div>
@@ -90,9 +90,20 @@
 
       document.getElementById('current_name').innerHTML = node.data().name;
       document.getElementById('current_type').innerHTML = node.data().type;
-      document.getElementById('children_type').innerHTML = node.data().children_type;
-      document.getElementById('attributes').innerHTML = node.data().attributes.map((attribute) => `<li>${attribute.name}: ${attribute.value}</li>`);
-      document.getElementById('children').innerHTML = node.data().children.map((child) => `<li>${child}</li>`);
+
+      if (node.data().attributes_as_yaml) {
+        document.getElementById('attributes').innerHTML = `<code>${node.data().attributes_as_yaml}</code>`;
+      } else {
+        document.getElementById('attributes').innerHTML = `<code>-</code>`;
+      }
+
+      if (node.data().show_children && node.data().children.length) {
+        document.getElementById('children_type').innerHTML = node.data().children_type;
+        document.getElementById('children').innerHTML = node.data().children.map((child) => `<li>${child}</li>`).join("");
+      } else {
+        document.getElementById('children_type').innerHTML = '';
+        document.getElementById('children').innerHTML = '';
+      }
     });
 
 

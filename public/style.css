@@ -47,3 +47,7 @@ img.find-compiled-pipeline-image {
 p.find-compiled-pipeline-description {
   width: 40%;
 }
+
+code {
+  display: block;
+}

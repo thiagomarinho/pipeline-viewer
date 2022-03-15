@@ -1,4 +1,6 @@
 # TODO map methods to yaml attributes using method_missing
+require 'yaml'
+
 class String
   def parameterize
     return self.downcase.strip.gsub(' ', '-').gsub(/[^\w-]/, '')
@@ -54,7 +56,6 @@ class Stage < Base
 
     @internal_id = yaml['stage']
     @id = "stage_#{@internal_id}".parameterize
-    @pool = yaml['pool']
 
     if yaml['jobs']
       @jobs = yaml['jobs'].map { |job| JobFactory.create_job(job, self) }
@@ -125,15 +126,18 @@ class Stage < Base
       name: name,
       children_type: 'Jobs',
       children: jobs.map { |job| job.name },
-      attributes: attributes
+      attributes: attributes,
+      attributes_as_yaml: attributes_as_yaml,
+      show_children: true
     }
   end
 
   def attributes
-    attributes = []
-    attributes << { name: :pool, value: @pool } if @pool
+    @yaml.reject { |key| ['jobs', 'stage'].include?(key) }.map { |key, value| { name: key, value: value } }.compact
+  end
 
-    attributes.compact
+  def attributes_as_yaml
+    @yaml.reject { |key| ['jobs', 'stage'].include?(key) }.compact.to_yaml.sub("--- {}\n", '').sub("---\n", '')
   end
 
   def depends_on
@@ -184,13 +188,24 @@ class Stage < Base
 end
 
 class Job < Base
+  attr_reader :steps
+
   def initialize(yaml, parent, id_key='job')
     super(yaml, parent)
 
     @internal_id = yaml[id_key]
     @id = "job_#{parent.id}_#{@internal_id}".parameterize
-    @pool = yaml['pool']
-    @container = yaml['container']
+
+    if id_key == 'job'
+      if yaml['steps']
+        @steps = yaml['steps']
+      end
+    elsif id_key == 'deployment'
+      # FIXME: there are other strategies
+      if yaml['strategy']['runOnce']['deploy']['steps']
+        @steps = yaml['strategy']['runOnce']['deploy']['steps']
+      end
+    end
   end
 
   def data
@@ -201,17 +216,19 @@ class Job < Base
       name: name,
       parent: parent.id,
       children_type: 'Steps',
-      children: [],
-      attributes: attributes
+      children: [], # TODO: continue this: steps.map { |step| step.name },
+      attributes: attributes,
+      attributes_as_yaml: attributes_as_yaml,
+      show_children: true
     }
   end
 
   def attributes
-    attributes = []
-    attributes << { name: :pool, value: @pool } if @pool
-    attributes << { name: :container, value: @container } if @container
+    @yaml.reject { |key| ['steps', 'job'].include?(key) }.map { |key, value| { name: key, value: value } }.compact
+  end
 
-    attributes.compact
+  def attributes_as_yaml
+    @yaml.reject { |key| ['steps', 'job', 'strategy', 'deployment'].include?(key) }.compact.to_yaml.sub("--- {}\n", '').sub("---\n", '')
   end
 
   def has_dependency?
@@ -273,6 +290,10 @@ class DeploymentJob < Job
   def initialize(yaml, parent)
     super(yaml, parent, 'deployment')
   end
+end
+
+class Step
+  # TODO
 end
 
 def to_model(raw)

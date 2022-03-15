@@ -4,14 +4,20 @@ stages:
   - stage: Test
     jobs:
       - job: Unit tests
+        steps:
+          - step: Step
       - job: Integration tests
+        steps:
+          - step: Step
 
   - stage: MoreTests
     dependsOn: []
     jobs:
-      - job: Acceptance tests
+      - job: More tests
+        steps:
+          - step: Step
 
-  - stage: Build
+  - stage: BuildApp
     pool: vmss
     dependsOn:
       - MoreTests
@@ -19,25 +25,73 @@ stages:
     jobs:
       - job: Build app
         container: build-image
+        steps:
+          - step: Step
+
       - job: Security Scan
         dependsOn: Build app
+        steps:
+          - step: Step
+
       - job: Quality Scan
         dependsOn: Build app
+        steps:
+          - step: Step
+
+  - stage: BuildDatabase
+    pool: vmss
+    dependsOn:
+      - MoreTests
+      - Test
+    jobs:
       - job: Build database
         container: ssdt
+        steps:
+          - step: Step
 
   - stage: DeployToDev
-    dependsOn: Build
+    dependsOn:
+      - BuildApp
+      - BuildDatabase
     jobs:
-      - job: Deploy app
-      - job: Deploy database
+      - deployment: DeployApp
+        displayName: Deploy app
+        environment: 'dev'
+        strategy: 
+          runOnce:
+            deploy:
+              steps:
+                - step: Deploy app
+
+      - job: DeployDatabase
+        displayName: Deploy database
+        dependsOn: DeployApp
+        steps:
+          - step: Deploy database
+
       - job: Smoke test
-        dependsOn: Deploy database
+        dependsOn:
+          - DeployDatabase
 
   - stage: DeployToProd
     dependsOn: DeployToDev
+
     jobs:
-      - job: Deploy app
-      - job: Deploy database
+      - deployment: DeployApp
+        displayName: Deploy app
+        environment: 'prod'
+        strategy: 
+          runOnce:
+            deploy:
+              steps:
+                - step: Deploy app
+
+      - job: DeployDatabase
+        displayName: Deploy database
+        dependsOn: DeployApp
+        steps:
+          - step: Deploy database
+
       - job: Smoke test
-        dependsOn: Deploy database
+        dependsOn:
+          - DeployDatabase
